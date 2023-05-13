@@ -1,0 +1,222 @@
+Assessment Project:
+
+Steps to be followed:
+---------------------
+
+1. Brief/Introduction on the project
+2. Installation of pre-requisites/tools [do the steps and document]
+    1. Install & check java (1.8)
+    2. Install & check jenkins (mostly check whether jenkins running on port 8080)
+    3. Install & check git
+    4. Install & check Docker
+3. Create a GitHub repository under your account
+4. Clone your reposistory in your linux machine 
+5. Create files for your requirement inside this local repo. Check whether the Dockerfile is working without any error and able to build the image.
+6. Add the files to the local repo, commit the changes & push the changes to remote repo. And make sure that the changes are reflected in the remote repo.
+7. Open Jenkins, create a freestyle(pipeline) project. Use the Github repo url as the SCM. In the build section execute the docker command - check whether docker command execution is possible (docker socket permission) - pipeline from SCM.
+8. Install Jenkins plugin (Docker Pipeline / CloudBees Docker Build and Publish)
+9. Automate the process using Jenkins Build Triggers (poll SCM)
+10. Conclusion 
+
+
+
+
+
+
+
+Steps:
+------
+1. Brief/Introduction on the project
+  [write in your own words what I have explained about this project]
+
+
+2. Installation of pre-requisites/tools [do the steps and document]
+  1. Install & check java (1.8)
+    $ sudo apt update
+    $ sudo apt install -y openjdk-8-jdk
+    $ java -version   [Verify java]
+
+
+  2. Install & check jenkins (mostly check whether jenkins running on port 8080)
+    Add the Jenkins key:
+    $ wget -q -O – https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add –
+
+    Add the jenkins pkg repo to package manager:
+    Edit the file:
+    $ sudo vi /etc/apt/sources.list
+    [OR]
+    $ sudo nano /etc/apt/sources.list
+
+    Add this line at the end of the file and save it:
+    deb https://pkg.jenkins.io/debian-stable binary/
+
+
+    Execute:
+    $ sudo apt-get update
+
+    Install Jenkins:
+    $ sudo apt-get install -y jenkins
+
+
+    Browse: http://localhost:8080
+
+    To get the initial admin password to unlock Jenkins:
+    $ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+    Install suggested plugins
+
+    Create your first admin user
+
+
+    Manually restart the jenkins server:
+    $ sudo systemctl restart jenkins
+    [OR]
+    $ sudo service jenkins restart
+    [OR]
+    Browse: http://localhost:8080/restart
+
+
+
+
+    3. Install & check git
+    $ sudo apt-get update
+    $ sudo apt-get install -y git
+
+    [Verify git installation]
+    $ git --version
+
+    [configure git]
+    $ git config --global user.email "YOUR_EMAIL_ID"
+    $ git config --global user.name "YOUR_USER_NAME"
+    $ git config --list
+
+
+
+  4. Install & check Docker
+    $ sudo apt-get update
+    $ sudo apt-get install -y docker.io
+
+    $ docker --version
+
+    ONLY If you get Permission Denied error:
+    $ sudo docker --version
+    $ sudo usermod -aG docker <your_linux_user_name>
+    [Relogin]
+    $ docker --version
+    And relogin
+
+
+
+
+3. Create a GitHub repository under your account
+  - Your_github_project_url
+  - https://github.com/abhijithvg/SimplilearnAProject.git
+  [public repo, without any files in it]
+
+
+
+
+4. Clone your repository in your linux machine
+  $ git clone https://github.com/abhijithvg/SimplilearnAProject.git
+  $ cd SimplilearnAProject
+
+
+
+
+5. Create the files for your requirement inside this local repo. Check whether the Dockerfile is
+working without any error and able to build image.
+
+  $ nano Dockerfile
+  FROM openjdk:8
+  COPY . /var/www/java
+  WORKDIR /var/www/java
+  RUN javac Hello.java
+  CMD ["java", "Hello"]
+
+  $ nano Hello.java
+  class Hello {
+    public static void main(String[] args) {
+      System.out.println("This is a java app created using Docker");
+    }
+  }
+
+  Test the image creation:
+  $ docker images
+  $ docker build -t test_image .
+  $ docker images
+  $ docker rmi test_image
+
+
+
+
+6. Add the files to the local repo, commit the changes & push the changes to remote repo. And make
+sure the changes are reflected in the remote repo.
+  $ git status
+  $ git add .
+  $ git status
+  $ git commit -m "Dockerfile created for new image"
+  $ git status
+  $ git push origin master
+  [Use your github username & password]
+
+
+
+
+7. Open Jenkins, create a freestyle project. Use the Github url as the SCM. In the build section
+execute docker build command to test whether jenkins is able to execute it.
+  - Jenkins > New Item > Freestyle project (BuildJob)
+    - SCM > Git > Add your repo url
+    - Build > Add build step > Execute Shell
+    Command: docker build -t my_test_image .
+    - Save
+  - Build the Job
+    - Check the build console. If you get permission error, execute the below steps
+    $ sudo usermod -aG docker jenkins
+
+    - Restart Jenkins
+    $ sudo systemctl restart jenkins
+    $ sudo chmod 777 /var/run/docker.sock
+
+    - Relogin & build the job once again
+
+    $ docker images
+
+
+
+
+8. Install a Jenkins plugin "CloudBees Docker Build and Publish"
+  > Jenkins > Manage Jenkins > Manage Plugins > Available(tab) > search for "CloudBees"
+    > Select CloudBees Docker Build and Publish
+    > Download now and Install after restart
+
+  - Restart Jenkins
+  - Relogin
+
+  - BuildJob > Configure > Build section
+    - remove Execute shell
+    - Add Build step > Docker Build and Publish
+      - Repository Name: <Your_docker_id>/myassessmentimage
+      - Add credentials > Add > Jenkins - give username &  password > Add
+      - Use this credential as Registry credential
+
+    > Save & build the job once again
+
+
+
+
+9. Automate the process using Jenkins Build Trigger
+    > Automate
+      > Build Trigger
+        > Poll SCM - duration * * * * *
+
+
+
+
+10. Conclusion
+
+
+Every thing is great. One point, i want to highlight about recorder videos of past classes should motions their date, it is really hard to identify after sometime
+
+Simplilearn_robharti_A1Project1
+
+https://github.com/robert776/Simplilearn_robharti_A1Project1.git
